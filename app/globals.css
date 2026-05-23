@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.2;
+}
+
+.prose h1, .prose h2, .prose h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #f5f5f5;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose p {
+  margin-bottom: 1.25em;
+  color: #d0d0d0;
+}
+
+.prose a {
+  color: #c0392b;
+  text-decoration: underline;
+}
+
+.prose blockquote {
+  border-left: 3px solid #c0392b;
+  padding-left: 1rem;
+  color: #888;
+  font-style: italic;
+  margin: 1.5em 0;
+}
+
+.prose ul, .prose ol {
+  padding-left: 1.5em;
+  margin-bottom: 1.25em;
+}
+
+.prose li {
+  margin-bottom: 0.5em;
+  color: #d0d0d0;
+}
+
+.masthead-border {
+  border-top: 4px solid #c0392b;
+  border-bottom: 1px solid #333;
+}
+
+.article-card:hover .article-title {
+  color: #c0392b;
+}
+
+.category-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background-color: #c0392b;
+  color: #fff;
+  padding: 2px 8px;
+  display: inline-block;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #222;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+}
