@@ -14,11 +14,24 @@ function slugify(text: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth check
     const secret = request.headers.get('x-publish-secret') || 
                    request.nextUrl.searchParams.get('secret')
     
     const expectedSecret = process.env.PUBLISH_SECRET
+    
+    // Temp debug: return info about what we got
+    const debugMode = request.nextUrl.searchParams.get('debug') === '1'
+    if (debugMode) {
+      return NextResponse.json({
+        received_secret_length: secret?.length ?? null,
+        received_secret_first3: secret?.substring(0, 3) ?? null,
+        received_secret_last3: secret ? secret.substring(secret.length - 3) : null,
+        expected_length: expectedSecret?.length ?? null,
+        expected_first3: expectedSecret?.substring(0, 3) ?? null,
+        expected_last3: expectedSecret ? expectedSecret.substring(expectedSecret.length - 3) : null,
+        match: secret === expectedSecret
+      })
+    }
     
     if (!expectedSecret) {
       return NextResponse.json({ error: 'Server misconfiguration: PUBLISH_SECRET not set' }, { status: 500 })
@@ -40,7 +53,6 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // Generate unique slug
     const baseSlug = slugify(title)
     const timestamp = Date.now().toString(36)
     const slug = `${baseSlug}-${timestamp}`
@@ -61,18 +73,12 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Supabase error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      article: data,
-      url: `/${data.slug}`
-    }, { status: 201 })
+    return NextResponse.json({ success: true, article: data, url: `/${data.slug}` }, { status: 201 })
 
   } catch (err) {
-    console.error('Publish error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
