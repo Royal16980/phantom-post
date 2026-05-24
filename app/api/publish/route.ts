@@ -3,6 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'edge'
 
+// Public Supabase credentials (NEXT_PUBLIC_ = safe to expose in client/edge code)
+const SUPABASE_URL = 'https://mhryuiogffrmidtkvrxl.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ocnl1aW9nZmZybWlkdGt2cnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDY1ODksImV4cCI6MjA5MjcyMjU4OX0.6XmHq29jYu-wYbZY3Xetr0gzhWsVE3aWLkG4eQ8HJHw'
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -35,10 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'title is required' }, { status: 400 })
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
     const baseSlug = slugify(title)
     const timestamp = Date.now().toString(36)
