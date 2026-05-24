@@ -17,28 +17,15 @@ export async function POST(request: NextRequest) {
     const secret = request.headers.get('x-publish-secret') || 
                    request.nextUrl.searchParams.get('secret')
     
-    const expectedSecret = process.env.PUBLISH_SECRET
-    
-    // Temp debug: return info about what we got
-    const debugMode = request.nextUrl.searchParams.get('debug') === '1'
-    if (debugMode) {
-      return NextResponse.json({
-        received_secret_length: secret?.length ?? null,
-        received_secret_first3: secret?.substring(0, 3) ?? null,
-        received_secret_last3: secret ? secret.substring(secret.length - 3) : null,
-        expected_length: expectedSecret?.length ?? null,
-        expected_first3: expectedSecret?.substring(0, 3) ?? null,
-        expected_last3: expectedSecret ? expectedSecret.substring(expectedSecret.length - 3) : null,
-        match: secret === expectedSecret
-      })
-    }
+    // Strip BOM (﻿) that Windows CLI may prepend when setting env vars
+    const expectedSecret = (process.env.PUBLISH_SECRET || '').replace(/^﻿/, '').trim()
     
     if (!expectedSecret) {
       return NextResponse.json({ error: 'Server misconfiguration: PUBLISH_SECRET not set' }, { status: 500 })
     }
     
     if (secret !== expectedSecret) {
-      return NextResponse.json({ error: 'Unauthorized', hint: 'secret_mismatch' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -73,24 +60,27 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
+      console.error('Supabase error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, article: data, url: `/${data.slug}` }, { status: 201 })
+    return NextResponse.json({ 
+      success: true, 
+      article: data,
+      url: `/${data.slug}`
+    }, { status: 201 })
 
   } catch (err) {
+    console.error('Publish error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function GET() {
-  const secretSet = !!process.env.PUBLISH_SECRET
-  const secretLen = process.env.PUBLISH_SECRET?.length || 0
   return NextResponse.json({ 
     status: 'Phantom Post API online',
     endpoint: 'POST /api/publish',
     required_header: 'x-publish-secret: <your-secret>',
-    env_check: { PUBLISH_SECRET_set: secretSet, PUBLISH_SECRET_length: secretLen },
     body: { title: 'string', summary: 'string', body: 'markdown string', category: 'UK|World|Tech|Crime', image_url: 'string (optional)' }
   })
 }
