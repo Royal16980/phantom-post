@@ -18,8 +18,14 @@ export async function POST(request: NextRequest) {
     const secret = request.headers.get('x-publish-secret') || 
                    request.nextUrl.searchParams.get('secret')
     
-    if (secret !== process.env.PUBLISH_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const expectedSecret = process.env.PUBLISH_SECRET
+    
+    if (!expectedSecret) {
+      return NextResponse.json({ error: 'Server misconfiguration: PUBLISH_SECRET not set' }, { status: 500 })
+    }
+    
+    if (secret !== expectedSecret) {
+      return NextResponse.json({ error: 'Unauthorized', hint: 'secret_mismatch' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -72,10 +78,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
+  const secretSet = !!process.env.PUBLISH_SECRET
+  const secretLen = process.env.PUBLISH_SECRET?.length || 0
   return NextResponse.json({ 
     status: 'Phantom Post API online',
     endpoint: 'POST /api/publish',
     required_header: 'x-publish-secret: <your-secret>',
+    env_check: { PUBLISH_SECRET_set: secretSet, PUBLISH_SECRET_length: secretLen },
     body: { title: 'string', summary: 'string', body: 'markdown string', category: 'UK|World|Tech|Crime', image_url: 'string (optional)' }
   })
 }
